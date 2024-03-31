@@ -12,7 +12,6 @@ import (
 
 type Note struct {
 	Text string
-	Tags []string
 }
 
 type Args struct {
@@ -43,7 +42,6 @@ type File struct {
 }
 
 func NewFile() *File {
-
 	home, err := os.UserHomeDir()
 	if err != nil {
 		panic(err)

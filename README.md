@@ -29,4 +29,3 @@ By default, `notes.md` is stored in users home directory `~/notes.md`.
 - [ ] Add / read / delete notes by tag
 - [ ] Multiple file notes support
 - [ ] Add / read / delete notes by creation date
-- [x] Delete interaction with fzf
