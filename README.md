@@ -9,7 +9,7 @@ Add, read and delete notes stored in a text file from the terminal. This program
 
 ```bash
 # Make sure you have go installed
-go install github.com/frnsimoes/fzfnote@latest
+go install github.com/frnsimoes/fzfnote-go@latest
 ```
 
 By default, `notes.md` is stored in users home directory `~/notes.md`. 
