@@ -50,14 +50,14 @@ func (f *File) Add(note Note) error {
 	}
 	defer file.Close()
 
-	_, err = file.WriteString(note.Text + "\n")
+	_, err = file.WriteString("\n" + note.Text)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (f *File) Read(command CommandFunc) error {
+func (f *File) Read(command ReadCommand) error {
 	file, err := os.Open(f.Path)
 	if err != nil {
 		return err
@@ -75,12 +75,11 @@ func (f *File) Read(command CommandFunc) error {
 	}
 
 	input := strings.Join(notes, "\n")
-	output := command(input)
-	fmt.Println(output)
+	command(input)
 	return nil
 }
 
-func (f *File) Delete(command CommandFunc) error {
+func (f *File) Delete(command DeleteCommand) error {
 	file, err := os.OpenFile(f.Path, os.O_RDWR, 0644)
 	if err != nil {
 		return err
@@ -113,12 +112,14 @@ func (f *File) Delete(command CommandFunc) error {
 		}
 	}
 
-	_, err = file.Seek(0, 0) // reset the file pointer to the beginning of the file
+	//point to the beginning of the file
+	_, err = file.Seek(0, 0)
 	if err != nil {
 		return err
 	}
 
-	err = file.Truncate(0) // remove the old content
+	//remove old content
+	err = file.Truncate(0)
 	if err != nil {
 		return err
 	}
@@ -131,9 +132,9 @@ func (f *File) Delete(command CommandFunc) error {
 	return nil
 }
 
-type CommandFunc func(input string) string
+type ReadCommand func(input string)
 
-func FzfReadCommand(input string) string {
+func FzfReadCommand(input string) {
 	var copyCmd string
 
 	if runtime.GOOS == "darwin" {
@@ -147,9 +148,9 @@ func FzfReadCommand(input string) string {
 	cmd.Stderr = os.Stderr
 
 	cmd.Run()
-	// Gotta think of a better way to handle the return type
-	return ""
 }
+
+type DeleteCommand func(nput string) string
 
 func FzfDeleteCommand(input string) string {
 	cmd := exec.Command("fzf", "--ansi", "--multi", "--bind", "ctrl-s:toggle-sort", "--preview", "cat {}")

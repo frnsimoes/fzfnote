@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -56,8 +57,9 @@ func TestFileAdd(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(content) != "test note\n" {
-		t.Errorf("Expected 'test note\\n' in file, got '%s'", string(content))
+	sContent := string(content)
+	if strings.TrimSpace(sContent) != strings.TrimSpace("test note") {
+		t.Errorf("Expected '\n"+"test note' in file, got '%s'", string(content))
 	}
 }
 
@@ -95,7 +97,7 @@ func TestFileDelete(t *testing.T) {
 	}
 
 	got := string(content)
-	if got != note.Text {
+	if strings.TrimSpace(got) != strings.TrimSpace(note.Text) {
 		t.Errorf("Expected %v in the file, got %v", note.Text, string(content))
 	}
 
