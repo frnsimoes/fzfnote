@@ -1,5 +1,4 @@
 # Fzfnote
-![Example](https://s3.ezgif.com/tmp/ezgif-3-d11979b696.gif)
 
 Small terminal utility to add, read and delete one line notes. Inspired by Cleber's [pilha.sh](https://github.com/cleberzavadniak/pilha.sh)
 
