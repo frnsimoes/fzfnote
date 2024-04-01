@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 )
 
@@ -19,14 +20,15 @@ type Args struct {
 	Text   string
 }
 
-func NewArgs() (Args, error) {
+func ParseArgs() (Args, error) {
 	args := os.Args
 	if len(args) == 1 {
-		return Args{}, fmt.Errorf("No arguments provided")
+		return Args{}, nil
 	}
 
 	method := args[1]
-	if method != "add" && method != "delete" && method != "read" {
+	possibleMethods := []string{"add", "delete", "read"}
+	if !slices.Contains(possibleMethods, method) {
 		return Args{}, fmt.Errorf("Invalid method provided. Possible methods: add, delete, read")
 	}
 
@@ -39,15 +41,6 @@ func NewArgs() (Args, error) {
 
 type File struct {
 	Path string
-}
-
-func NewFile() *File {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-	path := filepath.Join(home, "notes.md")
-	return &File{Path: path}
 }
 
 func (f *File) Add(note Note) error {
@@ -82,7 +75,8 @@ func (f *File) Read(command CommandFunc) error {
 	}
 
 	input := strings.Join(notes, "\n")
-	command(input)
+	output := command(input)
+	fmt.Println(output)
 	return nil
 }
 
@@ -114,7 +108,7 @@ func (f *File) Delete(command CommandFunc) error {
 
 	var updatedNotes []string
 	for _, note := range notes {
-		if !stringInSlice(note, selectedNotes) {
+		if !slices.Contains(selectedNotes, note) {
 			updatedNotes = append(updatedNotes, note)
 		}
 	}
@@ -136,14 +130,6 @@ func (f *File) Delete(command CommandFunc) error {
 
 	return nil
 }
-func stringInSlice(str string, list []string) bool {
-	for _, v := range list {
-		if v == str {
-			return true
-		}
-	}
-	return false
-}
 
 type CommandFunc func(input string) string
 
@@ -159,12 +145,10 @@ func FzfReadCommand(input string) string {
 	cmd := exec.Command("sh", "-c", `echo "`+input+`" | fzf --ansi --multi --bind "enter:execute(echo {} | `+copyCmd+`)+abort"`)
 	cmd.Stdin = strings.NewReader(input)
 	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
 
 	cmd.Run()
-
-	return "test"
-
+	// Gotta think of a better way to handle the return type
+	return ""
 }
 
 func FzfDeleteCommand(input string) string {
@@ -181,12 +165,17 @@ func FzfDeleteCommand(input string) string {
 }
 
 func main() {
-	args, err := NewArgs()
+	args, err := ParseArgs()
 	if err != nil {
 		panic(err)
 	}
 
-	file := NewFile()
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	path := filepath.Join(home, "notes.md")
+	file := File{Path: path}
 	switch args.Method {
 	case "add":
 		note := Note{Text: args.Text}

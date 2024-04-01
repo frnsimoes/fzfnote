@@ -5,30 +5,30 @@ import (
 	"testing"
 )
 
-func TestNewArgs(t *testing.T) {
+func TestParseArgs(t *testing.T) {
 	origArgs := os.Args
 	defer func() { os.Args = origArgs }() // Restore original os.Args after test
 
 	os.Args = []string{"main"}
-	_, err := NewArgs()
-	if err == nil {
-		t.Errorf("Expected error for no arguments, got nil")
+	args, err := ParseArgs()
+	if args != (Args{}) || err != nil {
+		t.Errorf("Expected nil for no arguments, got %v", args)
 	}
 
 	os.Args = []string{"main", "invalidMethod"}
-	_, err = NewArgs()
+	_, err = ParseArgs()
 	if err == nil {
 		t.Errorf("Expected error for invalid method, got nil")
 	}
 
 	os.Args = []string{"main", "add"}
-	_, err = NewArgs()
+	_, err = ParseArgs()
 	if err == nil {
 		t.Errorf("Expected error for no text provided, got nil")
 	}
 
 	os.Args = []string{"main", "add", "test note"}
-	args, err := NewArgs()
+	args, err = ParseArgs()
 	if err != nil {
 		t.Errorf("Expected no error for valid arguments, got %v", err)
 	}
